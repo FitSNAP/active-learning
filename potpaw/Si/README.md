@@ -1,1 +1,0 @@
-POTCAR goes here!
