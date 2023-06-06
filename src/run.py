@@ -29,13 +29,12 @@ def initialize(fit_settings, fs_uq_settings, load_fit=False):
 
         # Get data from ASE list
         from ase.io import read
-        #frames = read("../../Ta_XYZ/XYZ/Displaced_BCC.xyz", ":")
         filenames = ["training-data/md_300K.xyz"]
         frames = []
         for filename in filenames:
             frames.extend(read(filename, ":"))
 
-        # Shorten frames
+        # Shorten frames, only use 2 for starting out.
         frames = random.choices(frames, k=2)
 
         print(f"Fitting to {len(frames)} configs.")
@@ -220,7 +219,7 @@ def run_vasp(atoms):
     mydir = '.'    # Directory where we will do the calculations
 
     # Make self-consistent ground state
-    kpts = ase.dft.kpoints.monkhorst_pack([5,5,5])
+    kpts = ase.dft.kpoints.monkhorst_pack([4,4,4])
     calc = Vasp(directory=mydir)
     calc.set(ismear=0,
              isif=2,
