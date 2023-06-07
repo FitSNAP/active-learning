@@ -29,7 +29,7 @@ def initialize(fit_settings, fs_uq_settings, load_fit=False):
 
         # Get data from ASE list
         from ase.io import read
-        filenames = ["training-data/md_300K.xyz"]
+        filenames = ["training-data.xyz"]
         frames = []
         for filename in filenames:
             frames.extend(read(filename, ":"))
