@@ -8,7 +8,14 @@ from src2.run import calc_uq_peratom
 # Function for converting LAMMPS instance info to ASE object.
 from src2.run import lmp2atoms
 
-def run_md(d_all, md_settings, uq_settings):
+def run_md(d_all, md_settings):
+    """
+    Run MD and return the 5 most uncertain configs.
+
+    Args:
+        d_all: Pool of per-atom descriptors for UQ.
+        md_settings: Settings for how long to run MD and how often to check UQ.
+    """
 
     # Get compression cycle settings.
     nsteps = md_settings["nsteps"]
@@ -16,10 +23,6 @@ def run_md(d_all, md_settings, uq_settings):
     ncheck_every = md_settings["ncheck_every"]
     assert(ncheck_every == int(nsteps/nchecks))
     velocity_seed = md_settings["velocity_seed"]
-
-    # Get UQ settings.
-    uq_threshold = uq_settings["uq_threshold"]
-    threshold_limit = uq_settings["threshold_limit"]
 
     lmp = lammps.lammps(cmdargs=["-screen", "lmp_screen.out"])
 
@@ -68,7 +71,7 @@ def run_md(d_all, md_settings, uq_settings):
 
     # NVT works well with uniaxial compression cycles:
     lmp.command("fix 1 all nvt temp 300 300 0.05")
-    
+
     stopstep = nsteps # initially 
 
     lmp.command("uncompute snap")

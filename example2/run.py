@@ -29,13 +29,6 @@ md_settings = \
 "velocity_seed": random.randint(1,1e6) # For LAMMPS velocities.
 }
 
-# UQ settings.
-uq_settings = \
-{
-"uq_threshold": 5.0, # Some number to tell us when to do a DFT calculation.
-"threshold_limit": 2 # Number of thresholds reached before we restart the run.
-}
-
 # FitSNAP settings for the fitting the potential.
 fit_settings = \
 {
@@ -123,7 +116,7 @@ fs_uq_settings = \
 atot, btot, wtot, d_all = initialize(fit_settings, fs_uq_settings, load_fit=False)
 
 # Loop through structure generator and take top uncertain.
-frames = run_md(d_all, md_settings, uq_settings)
+frames = run_md(d_all, md_settings)
 print(f"Got {len(frames)} structures from generator.")
 
 # Feed these frames into GPAW.
