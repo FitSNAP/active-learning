@@ -16,7 +16,7 @@ import lammps
 # Function for initializing the active learning cycle.
 from src.run import initialize
 # Function for generating structures.
-from structure_generator import compression_cycle
+from structure_generator import run_md
 
 # MD sampling settings.
 nsteps = 10000
@@ -127,4 +127,4 @@ atot, btot, wtot, d_all = initialize(fit_settings, uq_settings["fs_uq_settings"]
 # Loop through structure generator to update fitting arrays and descriptor pool.
 for run in range(1000):
     print(f">>> run: {run}")
-    atot, btot, wtot, d_all = compression_cycle(atot, btot, wtot, d_all, cc_settings, fit_settings, uq_settings)
+    atot, btot, wtot, d_all = run_md(atot, btot, wtot, d_all, cc_settings, fit_settings, uq_settings)
