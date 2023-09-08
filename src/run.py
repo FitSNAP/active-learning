@@ -1,4 +1,8 @@
-#from mpi4py import MPI
+"""
+This file houses functions needed for on-the-fly learning.
+"""
+
+#from mpi4py import MPI # This won't work because of MPI singleton.
 import numpy as np
 import ase
 from ase import Atoms, Atom
@@ -15,6 +19,17 @@ import random
 def initialize(fit_settings, fs_uq_settings, load_fit=False):
     """
     Initialize fitting data and per-atom descriptors for UQ.
+
+    Args:
+        fit_settings (dict): settings for fitting instance.
+        fs_uq_settings (dict): settings for UQ (descriptor calculator) instance.
+        load_fit (bool): Optional bool to load previous data.
+
+    Returns:
+        atot (nd.array): design matrix.
+        btot (nd.array): truth matrix.
+        wtot (nd.array): weight matrix.
+        d_all (nd.array): per-atom descriptor matrix used for UQ calculations.
     """
     if load_fit:
         atot = np.load("atot.npy")
@@ -73,13 +88,16 @@ def initialize(fit_settings, fs_uq_settings, load_fit=False):
 
 def add2set(lmp, fs, d_set):
     """
-    Calculate UQ metric per atom.
-    NOTE: num_coeff is often num_desc + 1, hence the indexing seen below.
+    Add descriptors to a data set.
 
     Args:
         lmp: lammps instance containing a descriptor compute.
         fs: fitsnap instance containing UQ metrics.
+            NOTE: This argument is no longer needed.
         d_set: optional per-atom descriptors to compare against.
+
+    Returns:
+        New concatenated set of per-atom descriptors.
     """
 
     natoms = lmp.get_natoms()
@@ -101,7 +119,11 @@ def calc_uq_peratom(lmp, fs, d_set=None):
     Args:
         lmp: lammps instance containing a descriptor compute.
         fs: fitsnap instance containing UQ metrics.
+            NOTE: This argument is no longer needed.
         d_set: optional per-atom descriptors to compare against.
+
+    Returns:
+        Numpy array of UQ metrics per atom.
     """
 
     natoms = lmp.get_natoms()
@@ -109,9 +131,6 @@ def calc_uq_peratom(lmp, fs, d_set=None):
     
     # Get peratom descriptors of this configuration.
     d_m = lmp_snap[0:natoms,0:-1]
-
-    #print(np.shape(d_m))
-    #print(np.shape(d_set))
 
     uq_peratom = []
     for di in d_m:
@@ -131,10 +150,14 @@ def calc_uq_peratom(lmp, fs, d_set=None):
 def write_xyz_uq(fh, lmp, uq):
     """
     Write XYZ file with per atom UQ property; mainly for visualization purposes.
+
+    Args:
+        fh: file handle for writing XYZ file.
+        lmp: LAMMPS instance containing box, position, type information.
+        uq (nd.array): array of per-atom UQ values.
     """
 
     # Write XYZ file for visualization.
-    # Args: uq_peratom, lmp, fs
     natoms = lmp.get_natoms()
 
     # Convert to 3x3 cell for ASE/VASP/Ovito compatibility.
@@ -165,7 +188,8 @@ def lmp2atoms(lmp):
     Args:
         lmp: a lammps instance.
     
-    Returns an ASE atoms object.
+    Returns:
+        ASE atoms object containing atomic geometry info from LAMMPS instance.
     """
     natoms = lmp.get_natoms()
 
@@ -195,6 +219,9 @@ def extract_compute_np(lmp, name, compute_style, result_type, array_shape=None):
     From LAMMPS/src/library.cpp:
     style = 0 for global data, 1 for per-atom data, 2 for local data
     type = 0 for scalar, 1 for vector, 2 for array
+
+    Returns:
+        Numpy array of LAMMPS compute results.
     """
 
     if array_shape is None:
@@ -215,6 +242,17 @@ def extract_compute_np(lmp, name, compute_style, result_type, array_shape=None):
     return array_np
 
 def run_vasp(atoms):
+    """
+    Run a VASP calculation on a system defined by ASE atoms object. 
+    The VASP results get stored in the atoms object, then we use our ASE scraper 
+    to format into a FitSNAP dictionary.
+
+    Args:
+        atoms: ASE atoms object.
+
+    Returns:
+        FitSNAP data dictionary containing atomic geometry and fitting targets.
+    """
 
     mydir = '.'    # Directory where we will do the calculations
 

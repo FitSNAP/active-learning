@@ -24,7 +24,26 @@ from src.run import lmp2atoms
 # Function for running VASP.
 from src.run import run_vasp
 
-def compression_cycle(atot, btot, wtot, d_all, md_settings, fit_settings, uq_settings):
+def run_md(atot, btot, wtot, d_all, md_settings, fit_settings, uq_settings):
+    """
+    Structure generator of simply running NVT dynamics.
+
+    Args:
+        atot (nd.array): design matrix.
+        btot (nd.array): truth array.
+        wtot (nd.array): weight array.
+        d_all (nd.array): per-atom descriptor array for UQ calculation.
+        md_settings (dict): settings for running MD.
+        fit_settigns (dict): settings for fitting FitSNAP instance.
+        uq_settings (dict): settings for UQ FitSNAP instance.
+
+    Returns:
+        Important fitting quantities if UQ threshold is met.
+        atot: design matrix.
+        btot: truth array.
+        wtot: weight array.
+        d_all: per-atom descriptor array for UQ calculation.
+    """
 
     # Get compression cycle settings.
     nsteps = md_settings["nsteps"]
