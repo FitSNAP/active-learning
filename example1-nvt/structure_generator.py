@@ -60,7 +60,8 @@ def run_md(atot, btot, wtot, d_all, md_settings, fit_settings, uq_settings):
     fs_uq_settings = uq_settings["fs_uq_settings"]
 
     fs = FitSnap(fit_settings, arglist=["--overwrite"])
-    fs2 = FitSnap(fs_uq_settings,arglist=["--overwrite"])
+    # NOTE: Don't need a FitSNAP UQ instance, we can just use LAMMPS to get per-atom descriptors for UQ.
+    # fs2 = FitSnap(fs_uq_settings,arglist=["--overwrite"])
 
     lmp = lammps.lammps(cmdargs=["-screen", "lmp_screen.out"])
 
